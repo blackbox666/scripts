@@ -12,25 +12,25 @@ else {
     Write-Host "No MoonBot processes found."
 }
 
-# Select a process or multiple processes via the numbers from the list generated in Step 1
+# Select a process or multiple processes via the numbers from the list generated in previous step
 $selectedProcesses = Read-Host "Enter the number(s) of the process(es) you want to kill and restart, separated by commas (e.g. 1, 2, 3):"
 $selectedProcesses = $selectedProcesses -split "," | ForEach-Object { $_.Trim() }
 
-# Forcefully kill the selected process or processes and restart them with the delay of 60 seconds between restarts
+# Forcefully kill the selected process or processes and restart them with a delay of 60 seconds between restarts
 if ($selectedProcesses) {
     foreach ($processNumber in $selectedProcesses) {
         $process = $moonBots[$processNumber - 1]
-        if ($process -ne $null) {
+        if ($null -ne $process) {
             $processPath = $process.Path
             Write-Host "Killing process $($process.Name) with path: $($process.Path)"
             $process.Kill()
             Write-Host "Restarting process $($process.Name) with path: $processPath"      
             Start-Process $processPath
-            Write-Host "Waiting 60 seconds before restarting another MoonBot instance"      
+            Write-Host "Waiting 60 seconds before restarting another MoonBot instance."      
             Start-Sleep -Seconds 60
         }
         else {
-            Write-Host "No process found with number: $processNumber"
+            Write-Host "No process found with number: $processNumber."
         }
     }
 }
