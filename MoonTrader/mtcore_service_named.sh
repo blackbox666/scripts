@@ -2,9 +2,8 @@
 
 SERVICE_PREFIX="mtcore"
 
-# Prompt user for service instance (automatically converted to lowercase)
-read -p "Enter MTCore profile name (e.g. sub1): " SERVICE_INSTANCE
-SERVICE_INSTANCE=${SERVICE_INSTANCE,,}
+# Prompt user for service instance
+read -p "Enter MTCore profile name (case-sensitive): " SERVICE_INSTANCE
 
 # Prompt user for instance port
 read -p "Enter instance port (e.g. 4243): " INSTANCE_PORT
@@ -20,8 +19,8 @@ After=network.target
 
 [Service]
 Type=forking
-ExecStart=/usr/bin/tmux new-session -d -s "$SERVICE_NAME" /root/MoonTrader/MTCore --profile "$SERVICE_INSTANCE" --port "$INSTANCE_PORT"
-ExecStop=/bin/bash -c 'tmux send-keys -t mtcore:0 C-c; sleep 20; tmux kill-session -t "$SERVICE_NAME"'
+ExecStart=/usr/bin/tmux new-session -d -s "${SERVICE_PREFIX}-${SERVICE_INSTANCE}" /root/MoonTrader/MTCore --profile "$SERVICE_INSTANCE" --port "$INSTANCE_PORT"
+ExecStop=/bin/bash -c 'tmux send-keys -t "${SERVICE_PREFIX}-${SERVICE_INSTANCE}":0 C-c; sleep 20; tmux kill-session -t "${SERVICE_PREFIX}-${SERVICE_INSTANCE}"'
 RemainAfterExit=yes
 
 [Install]
