@@ -20,7 +20,7 @@ After=network.target
 [Service]
 Type=forking
 ExecStart=/usr/bin/tmux new-session -d -s "${SERVICE_PREFIX}-${SERVICE_INSTANCE}" /root/MoonTrader/MTCore --profile "$SERVICE_INSTANCE" --port "$INSTANCE_PORT"
-ExecStop=/bin/bash -c 'tmux send-keys -t "${SERVICE_PREFIX}-${SERVICE_INSTANCE}":0 C-c; sleep 20; tmux kill-session -t "${SERVICE_PREFIX}-${SERVICE_INSTANCE}"'
+ExecStop=/bin/bash -c 'tmux send-keys -t "${SERVICE_PREFIX}-${SERVICE_INSTANCE}":0 C-c; sleep 10; tmux kill-session -t "${SERVICE_PREFIX}-${SERVICE_INSTANCE}"'
 RemainAfterExit=yes
 
 [Install]
