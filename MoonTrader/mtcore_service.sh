@@ -10,7 +10,7 @@ After=network.target
 [Service]
 Type=forking
 ExecStart=/usr/bin/tmux new-session -d -s mtcore /root/MoonTrader/MTCore
-ExecStop=/bin/bash -c 'tmux send-keys -t mtcore:0 C-c; sleep 5; tmux kill-session -t mtcore'
+ExecStop=/bin/bash -c 'tmux send-keys -t mtcore:0 C-c; sleep 10; tmux kill-session -t mtcore'
 RemainAfterExit=yes
 
 [Install]
