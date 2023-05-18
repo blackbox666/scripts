@@ -9,8 +9,8 @@ read -p "Enter MTCore profile name (case-sensitive): " SERVICE_INSTANCE
 read -p "Enter instance port (e.g. 4243): " INSTANCE_PORT
 
 # Define service name
-SERVICE_NAME="${SERVICE_PREFIX}-${SERVICE_INSTANCE}.service"
-SERVICE_FILE="/lib/systemd/system/${SERVICE_NAME}"
+SERVICE_NAME="${SERVICE_PREFIX}-${SERVICE_INSTANCE}"
+SERVICE_FILE="/lib/systemd/system/${SERVICE_NAME}.service"
 
 # Create the systemd startup script
 echo "[Unit]
@@ -19,8 +19,8 @@ After=network.target
 
 [Service]
 Type=forking
-ExecStart=/usr/bin/tmux new-session -d -s "${SERVICE_PREFIX}-${SERVICE_INSTANCE}" /root/MoonTrader/MTCore --profile "$SERVICE_INSTANCE" --port "$INSTANCE_PORT"
-ExecStop=/bin/bash -c 'tmux send-keys -t "${SERVICE_PREFIX}-${SERVICE_INSTANCE}":0 C-c; sleep 30; tmux kill-session -t "${SERVICE_PREFIX}-${SERVICE_INSTANCE}"'
+ExecStart=/usr/bin/tmux new-session -d -s "${SERVICE_NAME}" /root/MoonTrader/MTCore --profile "$SERVICE_INSTANCE" --port "$INSTANCE_PORT"
+ExecStop=/bin/bash -c 'tmux send-keys -t "${SERVICE_NAME}":0 C-c; sleep 30; tmux kill-session -t "${SERVICE_NAME}"'
 RemainAfterExit=yes
 
 [Install]
