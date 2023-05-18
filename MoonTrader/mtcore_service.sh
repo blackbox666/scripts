@@ -9,7 +9,7 @@ After=network.target
 
 [Service]
 Type=forking
-ExecStart=/usr/bin/tmux new-session -d -s mtcore /root/MoonTrader/MTCore
+ExecStart=/bin/bash -c 'tmux new-session -d -s mtcore; tmux send-keys -t mtcore:0 /root/MoonTrader/MTCore Enter'
 ExecStop=/bin/bash -c 'tmux send-keys -t mtcore:0 C-c; sleep 30; tmux kill-session -t mtcore'
 RemainAfterExit=yes
 
