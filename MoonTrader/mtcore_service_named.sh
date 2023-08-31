@@ -24,18 +24,18 @@ ExecStop=/bin/bash -c 'tmux send-keys -t "${SERVICE_NAME}":0 C-c; sleep 30; tmux
 RemainAfterExit=yes
 
 [Install]
-WantedBy=multi-user.target" | sudo tee "$SERVICE_FILE" > /dev/null
+WantedBy=multi-user.target" | tee "$SERVICE_FILE" > /dev/null
 
 # Set proper permissions for the service file
-sudo chmod 644 "$SERVICE_FILE"
+chmod 644 "$SERVICE_FILE"
 
 # Reload systemd daemon
-sudo systemctl daemon-reload
+systemctl daemon-reload
 
 # Enable the service
-sudo systemctl enable "$SERVICE_NAME"
+systemctl enable "$SERVICE_NAME"
 
 # Display success message
 echo "MTCore service ($SERVICE_NAME) has been created and enabled."
-echo "You can start the service using: sudo systemctl start $SERVICE_NAME"
-echo "You can stop the service using: sudo systemctl stop $SERVICE_NAME"
+echo "You can start the service using: systemctl start $SERVICE_NAME"
+echo "You can stop the service using: systemctl stop $SERVICE_NAME"
