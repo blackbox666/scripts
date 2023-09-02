@@ -1,6 +1,6 @@
 ### Установка MoonTrader
 
-Версия без iptables (для провайдеров со нативным firewall)
+Версия без iptables (для провайдеров с нативным firewall)
 
 ```
 wget -O - https://raw.githubusercontent.com/rogerbase/scripts/main/MoonTrader/mt_install_nofw.sh | bash <(cat) </dev/tty
