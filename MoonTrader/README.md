@@ -1,3 +1,17 @@
+### Установка MoonTrader
+
+Версия без iptables (для провайдеров со нативным firewall)
+
+```
+wget -O - https://raw.githubusercontent.com/rogerbase/scripts/main/MoonTrader/mt_install_nofw.sh | bash <(cat) </dev/tty
+```
+
+Версия с iptables (открыты порты 22, 1194)
+
+```
+wget -O - https://raw.githubusercontent.com/rogerbase/scripts/main/MoonTrader/mt_install.sh | bash <(cat) </dev/tty
+```
+
 ### Скрипты для запуска ядра MoonTrader в сессии tmux
 
 Cкрипт для запуска ядра в сессии tmux, с возможностью остановки/запуска и автозапуском при перезагрузке. Установка одной командой:
