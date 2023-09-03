@@ -1,3 +1,17 @@
+<#
+
+.SYNOPSIS
+Optimizes Windows Server 2016 running in a VDS environment.
+
+.DESCRIPTION
+This script disables services, disables scheduled tasks and modifies the registry to optimize system performance on Windows Server 2016 running in a VDS environment.
+
+.NOTES
+This script makes changes to the system registry and performs other configuration changes.
+Start PowerShell as an administrator before running this script.
+
+#>
+
 # Список изменений которые будут добавлены в реестр
 $list_regCreate =
 @("HideSCAHealth DWORD - Hide Action Center Icon.", "'HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\Explorer' /v HideSCAHealth /t REG_DWORD /d 0x1 /f"), #Confirmed that this does hide the Action Center in 2012 R2.
