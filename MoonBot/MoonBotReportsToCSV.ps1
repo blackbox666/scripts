@@ -1,62 +1,75 @@
-# Устанавливаем текущую директорию в качестве корневой
+# Set the current directory as the root
 $rootDirectory = Get-Location
 
-$query = @"
-SELECT 
-    *,
-    CASE
-        WHEN Comment LIKE '%Latency:% /% Ping:%' THEN 
-            trim(
-                substr(
-                    Comment,
-                    instr(Comment, char(10) || 'Latency:') + 9,
-                    instr(substr(Comment,instr(Comment, char(10) || 'Latency:') + 9),'/') - 1
-                )
-            )
-        ELSE NULL
-    END AS LatencyTrades,
-    CASE
-        WHEN Comment LIKE '%Ping: % /%' THEN 
-            trim(
-                substr(
-                    Comment,
-                    instr(Comment, 'Ping:') + 5,
-                    instr(substr(Comment, instr(Comment, 'Ping:') + 5), '/') - 1
-                )
-            )
-        ELSE NULL
-    END AS Ping
-FROM 
-    Orders
-"@
-
-# Создаем папку ExportsCSV, если она еще не существует
+# Create ExportsCSV folder if it doesn't exist
 $exportsDirectory = Join-Path -Path $rootDirectory -ChildPath "ExportsCSV"
 if (-not (Test-Path $exportsDirectory)) {
     New-Item -Path $exportsDirectory -ItemType Directory | Out-Null
 }
 
-# Получаем все файлы "Binance Futures.db" только из папок "data"
+# Import the module for SQLite
+Import-Module PSSQLite
+
+# Define properties to exclude for the compact report
+$excludeProperties = @('Comment', 'exOrderID', 'Source', 'Channel', 'Status', 'BaseCurrency', 'SignalType', 'FName', 'deleted', 'Emulator', 'Imp', 'IsShort', 'TaskID')
+
+# Retrieve all "Binance Futures.db" files only from "data" folders
 $files = Get-ChildItem -Path "$rootDirectory\*\data\Binance Futures.db" -File
 
+# Save current culture settings
+$currentCulture = [System.Threading.Thread]::CurrentThread.CurrentCulture
+
+# Set culture settings to use a dot as decimal separator
+[System.Threading.Thread]::CurrentThread.CurrentCulture = New-Object System.Globalization.CultureInfo("en-US")
+
 foreach ($file in $files) {
-    # Получаем имя родительской папки для папки "data"
+    # Get the parent folder name for the "data" folder
     $botName = $file.Directory.Parent.Name
 
-    # Формируем имя для CSV и путь для сохранения результатов
-    $csvName = "$botName.csv"
-    $outputCsvPath = Join-Path -Path $exportsDirectory -ChildPath $csvName
+    # Form the full CSV name and compact CSV name and path for saving the results
+    $fullCsvName = "${botName}_full.csv"
+    $compactCsvName = "${botName}_lite.csv"
+    $fullOutputCsvPath = Join-Path -Path $exportsDirectory -ChildPath $fullCsvName
+    $compactOutputCsvPath = Join-Path -Path $exportsDirectory -ChildPath $compactCsvName
 
-    # Устанавливаем рабочую директорию в папку экспорта
-    Set-Location $exportsDirectory
+    Write-Host "Exporting orders from $($file.FullName)"
 
-    # Выполнение команды SQLite с помощью PowerShell
-    $dbPath = "`"$($file.FullName)`""
-    Invoke-Expression -Command "sqlite3.exe $dbPath `".mode csv`" `".output $csvName`" `"$query`""
+    # Extract data from the database
+    $data = Invoke-SqliteQuery -DataSource $file.FullName -Query "SELECT * FROM Orders"
+
+    # Process data for both exports
+    $processedData = $data | ForEach-Object {
+        # Convert unixtime to readable datetime
+        $dateTimeFormat = "yyyy-MM-dd HH:mm:ss"
+        $_.BuyDate = [System.DateTimeOffset]::FromUnixTimeSeconds($_.BuyDate).DateTime.ToString($dateTimeFormat)
+        $_.SellSetDate = [System.DateTimeOffset]::FromUnixTimeSeconds($_.SellSetDate).DateTime.ToString($dateTimeFormat)
+        $_.CloseDate = [System.DateTimeOffset]::FromUnixTimeSeconds($_.CloseDate).DateTime.ToString($dateTimeFormat)
+        
+        # Extract latency and ping using regex
+        $comment = $_.Comment
+        $latencyMatch = if ($comment -match "(?<=\bLatency:\s)\d+") { $matches[0] } else { 'N/A' }
+        $pingMatch = if ($comment -match "(?<=Ping:\s)\d+") { $matches[0] } else { 'N/A' }
+
+        # Add Latency and Ping to the object
+        $_ | Add-Member -NotePropertyName "Latency" -NotePropertyValue $latencyMatch -PassThru |
+        Add-Member -NotePropertyName "Ping" -NotePropertyValue $pingMatch -PassThru
+    }
+
+    # Export full data to CSV
+    $processedData | Export-Csv -Path $fullOutputCsvPath -NoTypeInformation
+
+    # Export compact data to CSV with excluded properties
+    $processedData | Select-Object * -ExcludeProperty $excludeProperties |
+    Export-Csv -Path $compactOutputCsvPath -NoTypeInformation
+
+    Write-Host "Finished the export for $($file.FullName)"
 }
 
-# Возвращаемся в исходную директорию
+# Reset to the original directory
 Set-Location $rootDirectory
 
-# Выводим уведомление о завершении
-Write-Output "Export completed. Check the files in the Exports directory"
+# Restore original culture settings
+[System.Threading.Thread]::CurrentThread.CurrentCulture = $currentCulture
+
+# Display completion message
+Write-Output "Export completed. Check the files in the ExportsCSV directory"
