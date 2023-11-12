@@ -21,6 +21,7 @@ function Check-AdminRights {
 function Get-CurrentRdpPort {
     $currentPort = Get-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Terminal Server\WinStations\RDP-Tcp" -Name "PortNumber"
     Write-Host "- Current RDP port:" $currentPort.PortNumber -ForegroundColor Yellow
+    return $currentPort.PortNumber
 }
 
 function Set-NewRdpPort {
@@ -32,13 +33,21 @@ function Set-NewRdpPort {
     Write-Host "-- RDP port updated to $newPort" -ForegroundColor Green
 }
 
-function Add-FirewallRule {
+function Update-FirewallRule {
     param (
-        [int]$port
+        [int]$oldPort,
+        [int]$newPort
     )
 
-    Write-Host "-- Adding firewall rule for port $port..." -ForegroundColor Cyan
-    netsh advfirewall firewall add rule name="RDP Port $port" profile=any protocol=TCP action=allow dir=in localport=$port | Out-Null
+    if ($oldPort -ne 3389 -and $oldPort -ne $newPort) {
+        Write-Host "-- Removing old firewall rule for port $oldPort..." -ForegroundColor Cyan
+        netsh advfirewall firewall delete rule name="RDP Port $oldPort" protocol=TCP localport=$oldPort | Out-Null
+    }
+
+    if ($newPort -ne 3389) {
+        Write-Host "-- Adding firewall rule for port $newPort..." -ForegroundColor Cyan
+        netsh advfirewall firewall add rule name="RDP Port $newPort" profile=any protocol=TCP action=allow dir=in localport=$newPort | Out-Null
+    }
 }
 
 function Restart-TerminalServices {
@@ -50,7 +59,7 @@ function Restart-TerminalServices {
 # Main script execution
 Display-Header
 Check-AdminRights
-Get-CurrentRdpPort
+$oldPort = Get-CurrentRdpPort
 
 do {
     $rdp_port = Read-Host "Enter the desired port (Press Enter for the default 3389)"
@@ -66,10 +75,10 @@ Read-Host "Press Enter to change RDP port to $rdp_port..."
 Set-NewRdpPort -newPort $rdp_port
 Get-CurrentRdpPort
 
-Write-Host "-- Adding firewall rules and restarting services..." -ForegroundColor Cyan
+Write-Host "-- Updating firewall rules..." -ForegroundColor Cyan
 Read-Host "Press Enter to continue..."
 
-Add-FirewallRule -port $rdp_port
+Update-FirewallRule -oldPort $oldPort -newPort $rdp_port
 Restart-TerminalServices
 
 Write-Host "-------------------------------------------------" -ForegroundColor Cyan
