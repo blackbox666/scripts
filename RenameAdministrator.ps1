@@ -1,7 +1,6 @@
 # Display header
 function Display-Header {
     Write-Host "-------------------------------------------------" -ForegroundColor Cyan
-    Write-Host "- $($MyInvocation.MyCommand.Name)" -ForegroundColor Yellow
     Write-Host "- This script allows you to rename the Administrator account." -ForegroundColor Cyan
     Write-Host "-------------------------------------------------" -ForegroundColor Cyan
 }
