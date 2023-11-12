@@ -73,7 +73,6 @@ do {
 Read-Host "Press Enter to change RDP port to $rdp_port..."
 
 Set-NewRdpPort -newPort $rdp_port
-Get-CurrentRdpPort
 
 Write-Host "-- Updating firewall rules..." -ForegroundColor Cyan
 Read-Host "Press Enter to continue..."
