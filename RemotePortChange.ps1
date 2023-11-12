@@ -59,4 +59,19 @@ do {
     if ($rdp_port -lt 1 -or $rdp_port -gt 65535) {
         Write-Host "Invalid port number. Please enter a value between 1 and 65535." -ForegroundColor Red
     }
-} until ($rdp_port -ge 
+} until ($rdp_port -ge 1 -and $rdp_port -le 65535)
+
+Read-Host "Press Enter to change RDP port to $rdp_port..."
+
+Set-NewRdpPort -newPort $rdp_port
+Get-CurrentRdpPort
+
+Write-Host "-- Adding firewall rules and restarting services..." -ForegroundColor Cyan
+Read-Host "Press Enter to continue..."
+
+Add-FirewallRule -port $rdp_port
+Restart-TerminalServices
+
+Write-Host "-------------------------------------------------" -ForegroundColor Cyan
+Write-Host "-- Done --" -ForegroundColor Green
+Read-Host "Press Enter to exit..."
