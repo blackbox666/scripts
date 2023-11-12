@@ -2,7 +2,7 @@
 function Display-Header {
     Write-Host "-------------------------------------------------" -ForegroundColor Cyan
     Write-Host "- This script allows you to change the RDP port." -ForegroundColor Cyan
-    Write-Host "- Note: The default RDP port is 3389 (0xd3d in hex)." -ForegroundColor Cyan
+    Write-Host "- Note: The default RDP port is 3389." -ForegroundColor Cyan
     Write-Host "-------------------------------------------------" -ForegroundColor Cyan
 }
 
@@ -20,7 +20,7 @@ function Check-AdminRights {
 
 function Get-CurrentRdpPort {
     $currentPort = Get-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Terminal Server\WinStations\RDP-Tcp" -Name "PortNumber"
-    Write-Host "- Current RDP port (in hex):" $currentPort.PortNumber.ToString("X") -ForegroundColor Yellow
+    Write-Host "- Current RDP port:" $currentPort.PortNumber -ForegroundColor Yellow
 }
 
 function Set-NewRdpPort {
@@ -59,17 +59,4 @@ do {
     if ($rdp_port -lt 1 -or $rdp_port -gt 65535) {
         Write-Host "Invalid port number. Please enter a value between 1 and 65535." -ForegroundColor Red
     }
-} until ($rdp_port -ge 1 -and $rdp_port -le 65535)
-
-Read-Host "Press Enter to change RDP port to $rdp_port..."
-
-Set-NewRdpPort -newPort $rdp_port
-Get-CurrentRdpPort
-Write-Host "---------- Adding firewall rules and restarting services..." -ForegroundColor Cyan
-Read-Host "Press Enter to continue..."
-
-Add-FirewallRule -port $rdp_port
-Restart-TerminalServices
-
-Write-Host "---------- Done ----------" -ForegroundColor Cyan
-Read-Host "Press Enter to exit..."
+} until ($rdp_port -ge 
