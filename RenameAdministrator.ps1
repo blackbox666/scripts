@@ -13,7 +13,8 @@ function Check-AdminRights {
         Write-Host "Please right-click and run as administrator." -ForegroundColor Red
         Read-Host "Press Enter to exit..."
         exit
-    } else {
+    }
+    else {
         Write-Host "[Admin rights confirmed]" -ForegroundColor Green
     }
 }
@@ -52,7 +53,8 @@ function Check-RenamingOperation {
         Write-Host "ERROR: Failed to rename the Administrator account." -ForegroundColor Red
         Read-Host "Press Enter to exit..."
         exit
-    } else {
+    }
+    else {
         Write-Host "The Administrator account has been renamed to '$new_name'" -ForegroundColor Green
     }
 }
@@ -73,5 +75,5 @@ if ($new_name -eq $current_name) {
 Rename-AdministratorAccount -new_name $new_name
 Check-RenamingOperation -new_name $new_name
 
-Write-Host "---------- Done ----------" -ForegroundColor Cyan
+Write-Host "-- Done --" -ForegroundColor Green
 Read-Host "Press Enter to exit..."

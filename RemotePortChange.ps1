@@ -10,10 +10,12 @@ function Check-AdminRights {
     $isAdmin = ([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)
     
     if (-not $isAdmin) {
-        Write-Host "ERROR: You lack the necessary permissions to change the RDP port. Please right-click and run as administrator." -ForegroundColor Red
+        Write-Host "ERROR: You lack the necessary permissions to rename the Administrator account." -ForegroundColor Red
+        Write-Host "Please right-click and run as administrator." -ForegroundColor Red
         Read-Host "Press Enter to exit..."
         exit
-    } else {
+    }
+    else {
         Write-Host "[Admin rights confirmed]" -ForegroundColor Green
     }
 }
@@ -80,6 +82,5 @@ Read-Host "Press Enter to continue..."
 Update-FirewallRule -oldPort $oldPort -newPort $rdp_port
 Restart-TerminalServices
 
-Write-Host "-------------------------------------------------" -ForegroundColor Cyan
 Write-Host "-- Done --" -ForegroundColor Green
 Read-Host "Press Enter to exit..."
