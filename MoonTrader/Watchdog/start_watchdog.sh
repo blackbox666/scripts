@@ -1,10 +1,28 @@
 #!/bin/bash
 
+# Configuration variables
 DELAY=120
 DATA_DIR="/root/.config/moontrader-data/data"
 IMAGE_NAME="mtcore-wd"
 
-# Check and install Docker if needed
+# Profiles to process
+declare -A PROFILES=(
+    ["profile1"]="18.176.43.181"
+    ["profile2"]="18.176.43.182"
+    ["profile3"]="18.176.43.183"
+    ["profile4"]="18.176.43.184"
+    ["profile5"]="18.176.43.185"
+)
+
+# Cleanup configuration
+FILES_TO_REMOVE=(
+    "algorithms.config"
+    "core.conf.bak"
+    "mtdb035.fdb5"
+    "mtdb035.fdb5.dat"
+)
+
+# Function declarations
 check_docker() {
     if ! command -v docker &> /dev/null; then
         echo "Docker not found, installing..."
@@ -17,8 +35,12 @@ check_docker() {
     fi
 }
 
-# Build Docker image
 build_image() {
+    if docker image inspect "${IMAGE_NAME}" >/dev/null 2>&1; then
+        echo "Docker image ${IMAGE_NAME} already exists"
+        return 0
+    fi
+
     echo "Building Docker image: ${IMAGE_NAME}"
     if ! docker build -t "${IMAGE_NAME}" .; then
         echo "Failed to build Docker image"
@@ -26,26 +48,6 @@ build_image() {
     fi
     echo "Docker image built successfully"
 }
-
-# Run Docker check and build image
-check_docker
-build_image
-
-# Declare profiles and IP addresses
-declare -A PROFILES=(
-    ["profile1"]="18.176.43.181"
-    ["profile2"]="18.176.43.182"
-    ["profile3"]="18.176.43.183"
-    ["profile4"]="18.176.43.184"
-    ["profile5"]="18.176.43.185"
-)
-
-FILES_TO_REMOVE=(
-    "algorithms.config"
-    "core.conf.bak"
-    "mtdb035.fdb5"
-    "mtdb035.fdb5.dat"
-)
 
 configure_profile() {
     local PROFILE=$1
@@ -60,7 +62,10 @@ configure_profile() {
     echo "Updated client.conf with address: ${IP_ADDRESS}"
 }
 
-# Start containers sequentially
+# Main script execution
+check_docker
+build_image
+
 for PROFILE in "${!PROFILES[@]}"; do
     CONTAINER_NAME="wd-${PROFILE}"
     echo "Processing container for profile: $PROFILE"
