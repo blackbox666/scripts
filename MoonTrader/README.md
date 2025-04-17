@@ -5,7 +5,10 @@ Cкрипт для запуска ядра в сессии tmux, с возмож
 ```
 wget -O - https://raw.githubusercontent.com/rogerbase/scripts/main/MoonTrader/mtcore_service.sh | bash <(cat) </dev/tty
 ```
-
+Botclient, lowkey path
+```
+wget -O - https://raw.githubusercontent.com/blackbox666/scripts/refs/heads/main/MoonTrader/botclient_service.sh | bash <(cat) </dev/tty
+```
 Запуск и остановка сервиса производятся командами:
 
 ```
