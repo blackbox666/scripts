@@ -9,7 +9,7 @@ After=network.target
 
 [Service]
 Type=forking
-ExecStart=/bin/bash -c 'tmux new-session -d -s botclient; tmux send-keys -t botclient:0 /root/MoonTrader/BotClient/BotClient Enter'
+ExecStart=/bin/bash -c 'tmux new-session -d -s botclient; tmux send-keys -t botclient:0 /root/moontrader/BotClient/BotClient Enter'
 ExecStop=/bin/bash -c 'tmux send-keys -t botclient:0 C-c; sleep 10; tmux kill-session -t botclient'
 RemainAfterExit=yes
 
